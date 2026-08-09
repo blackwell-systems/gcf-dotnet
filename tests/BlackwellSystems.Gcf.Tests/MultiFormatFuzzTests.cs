@@ -24,7 +24,7 @@ namespace BlackwellSystems.Gcf.Tests
     public class MultiFormatFuzzTests
     {
         private static int Iterations =>
-            int.TryParse(Environment.GetEnvironmentVariable("GCF_FUZZ_N"), out var n) && n > 0 ? Math.Min(n, 2000) : 400;
+            int.TryParse(Environment.GetEnvironmentVariable("GCF_FUZZ_N"), out var n) && n > 0 ? n : 400;
         private static int Seed =>
             int.TryParse(Environment.GetEnvironmentVariable("GCF_FUZZ_SEED"), out var s) ? s : 1;
 
