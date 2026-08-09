@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <RootNamespace>BlackwellSystems.Gcf.Cli</RootNamespace>
+    <AssemblyName>gcf</AssemblyName>
+
+    <!-- .NET global tool: `dotnet tool install -g BlackwellSystems.Gcf.Cli` -> `gcf` -->
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>gcf</ToolCommandName>
+    <RollForward>Major</RollForward>
+
+    <PackageId>BlackwellSystems.Gcf.Cli</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>Dayna Blackwell</Authors>
+    <Description>Command-line interface for GCF (Graph Compact Format): encode, decode, and token-comparison stats. Installs the `gcf` command.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/blackwell-systems/gcf-dotnet</PackageProjectUrl>
+    <PackageTags>gcf;cli;dotnet-tool;llm;tokens;json</PackageTags>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../BlackwellSystems.Gcf/BlackwellSystems.Gcf.csproj" />
+  </ItemGroup>
+
+</Project>

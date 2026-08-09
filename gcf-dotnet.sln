@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlackwellSystems.Gcf", "src
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlackwellSystems.Gcf.Tests", "tests\BlackwellSystems.Gcf.Tests\BlackwellSystems.Gcf.Tests.csproj", "{30038221-D084-4081-87BD-0E356B443915}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlackwellSystems.Gcf.Cli", "src\BlackwellSystems.Gcf.Cli\BlackwellSystems.Gcf.Cli.csproj", "{C9ACD4DC-1CBB-4252-B866-C1DC0D2AB7CE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +45,18 @@ Global
 		{30038221-D084-4081-87BD-0E356B443915}.Release|x64.Build.0 = Release|Any CPU
 		{30038221-D084-4081-87BD-0E356B443915}.Release|x86.ActiveCfg = Release|Any CPU
 		{30038221-D084-4081-87BD-0E356B443915}.Release|x86.Build.0 = Release|Any CPU
+		{C9ACD4DC-1CBB-4252-B866-C1DC0D2AB7CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9ACD4DC-1CBB-4252-B866-C1DC0D2AB7CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9ACD4DC-1CBB-4252-B866-C1DC0D2AB7CE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C9ACD4DC-1CBB-4252-B866-C1DC0D2AB7CE}.Debug|x64.Build.0 = Debug|Any CPU
+		{C9ACD4DC-1CBB-4252-B866-C1DC0D2AB7CE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C9ACD4DC-1CBB-4252-B866-C1DC0D2AB7CE}.Debug|x86.Build.0 = Debug|Any CPU
+		{C9ACD4DC-1CBB-4252-B866-C1DC0D2AB7CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9ACD4DC-1CBB-4252-B866-C1DC0D2AB7CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9ACD4DC-1CBB-4252-B866-C1DC0D2AB7CE}.Release|x64.ActiveCfg = Release|Any CPU
+		{C9ACD4DC-1CBB-4252-B866-C1DC0D2AB7CE}.Release|x64.Build.0 = Release|Any CPU
+		{C9ACD4DC-1CBB-4252-B866-C1DC0D2AB7CE}.Release|x86.ActiveCfg = Release|Any CPU
+		{C9ACD4DC-1CBB-4252-B866-C1DC0D2AB7CE}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -50,5 +64,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{D9C2B706-797D-446F-8E80-4A6A2FBC1EBF} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{30038221-D084-4081-87BD-0E356B443915} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{C9ACD4DC-1CBB-4252-B866-C1DC0D2AB7CE} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 	EndGlobalSection
 EndGlobal

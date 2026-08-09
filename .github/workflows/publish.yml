@@ -40,9 +40,11 @@ jobs:
         working-directory: gcf-dotnet
         run: dotnet test -c Release --no-build
 
-      - name: Pack
+      - name: Pack (library + CLI tool)
         working-directory: gcf-dotnet
-        run: dotnet pack src/BlackwellSystems.Gcf -c Release --no-build -o out
+        run: |
+          dotnet pack src/BlackwellSystems.Gcf -c Release --no-build -o out
+          dotnet pack src/BlackwellSystems.Gcf.Cli -c Release --no-build -o out
 
       # Trusted Publishing: exchange the GitHub OIDC token for a short-lived NuGet
       # API key. Requires a trusted-publishing policy on nuget.org tying this repo +
