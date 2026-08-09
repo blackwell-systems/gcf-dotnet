@@ -10,7 +10,7 @@
 
     <!-- Package metadata -->
     <PackageId>BlackwellSystems.Gcf</PackageId>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <Authors>Dayna Blackwell</Authors>
     <Description>Zero-dependency GCF (Graph Compact Format) codec for .NET: a compact, lossless, LLM-oriented serialization of structured data with generic and graph profiles, delta encoding, and streaming.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
