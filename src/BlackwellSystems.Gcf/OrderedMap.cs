@@ -33,6 +33,9 @@ namespace BlackwellSystems.Gcf
 
         public bool ContainsKey(string key) => _values.ContainsKey(key);
 
+        /// <summary>Returns the value for key, or null when the key is absent.</summary>
+        public object? GetOrNull(string key) => _values.TryGetValue(key, out var v) ? v : null;
+
         public bool TryGetValue(string key, out object? value) => _values.TryGetValue(key, out value);
 
         public void Add(string key, object? value)

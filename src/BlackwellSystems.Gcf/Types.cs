@@ -46,12 +46,4 @@ namespace BlackwellSystems.Gcf
         public int DeltaTokens { get; set; }
         public int FullTokens { get; set; }
     }
-
-    // Temporary stub: the graph profile decoder is ported in a later phase. Generic
-    // fixtures never reach this path (the header profile gates it).
-    internal static class GraphDecode
-    {
-        public static Payload Decode(string input)
-            => throw new DecodeException("graph profile decode not yet implemented");
-    }
 }

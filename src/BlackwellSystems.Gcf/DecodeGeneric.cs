@@ -22,7 +22,7 @@ namespace BlackwellSystems.Gcf
             string profile = ParseHeaderProfile(header);
             if (profile == "graph")
             {
-                var p = GraphDecode.Decode(input);
+                var p = GraphCodec.Decode(input);
                 return PayloadToMap(p);
             }
             if (profile != "generic") throw new DecodeException("unknown_profile: " + profile);

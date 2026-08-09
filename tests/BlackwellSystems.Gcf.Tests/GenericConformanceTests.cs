@@ -112,13 +112,13 @@ namespace BlackwellSystems.Gcf.Tests
             return opts;
         }
 
-        private static void AssertDeepEqual(object? expected, object? actual, string ctx)
+        internal static void AssertDeepEqual(object? expected, object? actual, string ctx)
         {
             if (!DeepEqual(expected, actual))
                 throw new Xunit.Sdk.XunitException($"[{ctx}] decode mismatch\n  expected: {Render(expected)}\n  actual:   {Render(actual)}");
         }
 
-        private static bool DeepEqual(object? a, object? b)
+        internal static bool DeepEqual(object? a, object? b)
         {
             if (a == null || b == null) return a == null && b == null;
             if (a is OrderedMap ma && b is OrderedMap mb)
