@@ -51,7 +51,7 @@ jobs:
         id: nuget-login
         uses: NuGet/login@v1
         with:
-          user: ${{ vars.NUGET_USER }}
+          user: blackwell-systems
 
       - name: Publish to NuGet
         working-directory: gcf-dotnet
