@@ -16,6 +16,29 @@ namespace BlackwellSystems.Gcf
         public static object? DecodeGeneric(string input)
             => DecodeGenericImpl.DecodeGeneric(input);
 
+        /// <summary>
+        /// Decode GCF from raw UTF-8 bytes. .NET strings are always valid UTF-16, so
+        /// byte-level UTF-8 validity (the spec's invalid_utf8 error) can only be enforced
+        /// at this boundary; malformed input is rejected before decoding. This mirrors the
+        /// utf8.ValidString check the Go/Rust decoders perform on their byte-backed strings.
+        /// </summary>
+        public static object? DecodeGeneric(byte[] utf8) => DecodeGenericImpl.DecodeGeneric(Utf8Strict(utf8));
+
+        /// <summary>Decode a graph payload from raw UTF-8 bytes (strict UTF-8; see the generic overload).</summary>
+        public static Payload Decode(byte[] utf8) => GraphCodec.Decode(Utf8Strict(utf8));
+
+        private static string Utf8Strict(byte[] bytes)
+        {
+            try
+            {
+                return new System.Text.UTF8Encoding(false, throwOnInvalidBytes: true).GetString(bytes);
+            }
+            catch (System.Text.DecoderFallbackException)
+            {
+                throw new DecodeException("invalid_utf8: malformed UTF-8 byte sequence");
+            }
+        }
+
         // --- generic delta (SPEC 10a) ---
 
         /// <summary>Content-addressed pack root (SHA-256) of a keyed set.</summary>

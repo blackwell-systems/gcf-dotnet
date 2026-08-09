@@ -89,12 +89,11 @@ namespace BlackwellSystems.Gcf.Tests
                         }
                         else
                         {
-                            // Byte-level input (e.g. invalid UTF-8). .NET strings are UTF-16, so
-                            // the transport decodes bytes with a strict UTF-8 decoder that rejects
-                            // invalid sequences (the spec's invalid_utf8 error) before the codec.
+                            // Byte-level input (e.g. invalid UTF-8): exercise the library's raw-bytes
+                            // decode entry, which enforces UTF-8 validity (the spec's invalid_utf8
+                            // error) at the byte boundary .NET strings can't represent.
                             var bytes = Convert.FromBase64String(r.GetProperty("inputBase64").GetString()!);
-                            var strict = new System.Text.UTF8Encoding(false, throwOnInvalidBytes: true);
-                            Assert.ThrowsAny<Exception>(() => Gcf.DecodeGeneric(strict.GetString(bytes)));
+                            Assert.ThrowsAny<Exception>(() => Gcf.DecodeGeneric(bytes));
                         }
                         break;
                     }
