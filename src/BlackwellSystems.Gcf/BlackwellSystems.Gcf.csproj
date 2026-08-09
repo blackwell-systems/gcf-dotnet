@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <RootNamespace>BlackwellSystems.Gcf</RootNamespace>
+    <AssemblyName>BlackwellSystems.Gcf</AssemblyName>
+
+    <!-- Package metadata -->
+    <PackageId>BlackwellSystems.Gcf</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>Dayna Blackwell</Authors>
+    <Description>Zero-dependency GCF (Graph Compact Format) codec for .NET: a compact, lossless, LLM-oriented serialization of structured data with generic and graph profiles, delta encoding, and streaming.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/blackwell-systems/gcf-dotnet</PackageProjectUrl>
+    <PackageTags>gcf;serialization;llm;tokens;json;compact</PackageTags>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+    <!-- Deterministic, zero-dependency build -->
+    <Deterministic>true</Deterministic>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+</Project>
