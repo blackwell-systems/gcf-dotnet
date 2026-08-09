@@ -11,6 +11,9 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
     <PackageReference Include="xunit" Version="2.9.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+    <!-- Test-only: cross-format fuzz (the library itself stays zero-dependency). -->
+    <PackageReference Include="YamlDotNet" Version="16.2.1" />
+    <PackageReference Include="Tomlyn" Version="0.17.0" />
   </ItemGroup>
 
   <ItemGroup>
