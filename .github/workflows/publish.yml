@@ -1,0 +1,53 @@
+name: Publish
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout gcf-dotnet
+        uses: actions/checkout@v4
+        with:
+          path: gcf-dotnet
+
+      # Conformance fixtures live in a sibling gcf checkout (../gcf/tests/conformance),
+      # the same pattern the other SDKs use.
+      - name: Checkout gcf (conformance fixtures)
+        uses: actions/checkout@v4
+        with:
+          repository: blackwell-systems/gcf
+          path: gcf
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+
+      - name: Build (multi-target, zero-dependency)
+        working-directory: gcf-dotnet
+        run: dotnet build -c Release
+
+      - name: Test (full conformance suite)
+        working-directory: gcf-dotnet
+        run: dotnet test -c Release --no-build
+
+      - name: Pack
+        working-directory: gcf-dotnet
+        run: dotnet pack src/BlackwellSystems.Gcf -c Release --no-build -o out
+
+      - name: Publish to NuGet
+        working-directory: gcf-dotnet
+        run: dotnet nuget push "out/*.nupkg" --api-key "${{ secrets.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
