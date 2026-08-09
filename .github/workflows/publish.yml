@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write   # OIDC token for NuGet Trusted Publishing (no stored API key)
 
 jobs:
   publish:
@@ -43,9 +44,18 @@ jobs:
         working-directory: gcf-dotnet
         run: dotnet pack src/BlackwellSystems.Gcf -c Release --no-build -o out
 
+      # Trusted Publishing: exchange the GitHub OIDC token for a short-lived NuGet
+      # API key. Requires a trusted-publishing policy on nuget.org tying this repo +
+      # workflow to the package owner (vars.NUGET_USER), and no stored secret.
+      - name: NuGet trusted-publishing login
+        id: nuget-login
+        uses: NuGet/login@v1
+        with:
+          user: ${{ vars.NUGET_USER }}
+
       - name: Publish to NuGet
         working-directory: gcf-dotnet
-        run: dotnet nuget push "out/*.nupkg" --api-key "${{ secrets.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push "out/*.nupkg" --api-key "${{ steps.nuget-login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
