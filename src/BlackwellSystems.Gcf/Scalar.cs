@@ -9,12 +9,16 @@ namespace BlackwellSystems.Gcf
     /// <summary>Scalar value formatting and parsing per SPEC Section 2.</summary>
     internal static class Scalar
     {
+        // Anchored with \A ... \z (start/end of string) rather than ^ ... $. In .NET
+        // `$` also matches just before a trailing "\n", so `^...$` would wrongly accept
+        // a value or field name ending in a newline (e.g. "42\n" as a number, "x\n" as
+        // a bare key), unlike the Go/Rust references. \z matches only the very end.
         private static readonly Regex JsonNumberRe =
-            new Regex(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$", RegexOptions.Compiled);
+            new Regex(@"\A-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?\z", RegexOptions.Compiled);
         private static readonly Regex NumericLikeRe =
-            new Regex(@"^[+-]\.?\d|^\.\d|^0\d", RegexOptions.Compiled);
+            new Regex(@"\A[+-]\.?\d|\A\.\d|\A0\d", RegexOptions.Compiled);
         private static readonly Regex BareKeyRe =
-            new Regex(@"^[a-zA-Z_][a-zA-Z0-9_]*$", RegexOptions.Compiled);
+            new Regex(@"\A[a-zA-Z_][a-zA-Z0-9_]*\z", RegexOptions.Compiled);
         private static readonly Regex InlineArrayRe =
             new Regex(@"\[[^\]]*\]\s*:", RegexOptions.Compiled);
 
