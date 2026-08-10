@@ -48,13 +48,14 @@ jobs:
           dotnet pack src/BlackwellSystems.Gcf.Cli -c Release --no-build -o out
 
       # Trusted Publishing: exchange the GitHub OIDC token for a short-lived NuGet
-      # API key. Requires a trusted-publishing policy on nuget.org tying this repo +
-      # workflow to the package owner (vars.NUGET_USER), and no stored secret.
+      # API key. The policy is scoped to the blackwell-systems organization but was
+      # created on an admin's profile, so `user` must be that admin (the policy
+      # creator), NOT the org name. NuGet rejects the org name here (HTTP 400).
       - name: NuGet trusted-publishing login
         id: nuget-login
         uses: NuGet/login@v1
         with:
-          user: blackwell-systems
+          user: dayna-blackwell
 
       - name: Publish to NuGet
         working-directory: gcf-dotnet
