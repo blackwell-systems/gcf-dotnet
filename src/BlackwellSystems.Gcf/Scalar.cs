@@ -13,10 +13,12 @@ namespace BlackwellSystems.Gcf
         // `$` also matches just before a trailing "\n", so `^...$` would wrongly accept
         // a value or field name ending in a newline (e.g. "42\n" as a number, "x\n" as
         // a bare key), unlike the Go/Rust references. \z matches only the very end.
+        // Digits are ASCII 0-9 (SPEC 2.3): \d is avoided because .NET's regex \d also
+        // matches Unicode decimal digits (\p{Nd}), which would accept e.g. "1.<U+0665>".
         private static readonly Regex JsonNumberRe =
-            new Regex(@"\A-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?\z", RegexOptions.Compiled);
+            new Regex(@"\A-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\z", RegexOptions.Compiled);
         private static readonly Regex NumericLikeRe =
-            new Regex(@"\A[+-]\.?\d|\A\.\d|\A0\d", RegexOptions.Compiled);
+            new Regex(@"\A[+-]\.?[0-9]|\A\.[0-9]|\A0[0-9]", RegexOptions.Compiled);
         private static readonly Regex BareKeyRe =
             new Regex(@"\A[a-zA-Z_][a-zA-Z0-9_]*\z", RegexOptions.Compiled);
         private static readonly Regex InlineArrayRe =

@@ -10,11 +10,12 @@
 
     <!-- Package metadata -->
     <PackageId>BlackwellSystems.Gcf</PackageId>
-    <Version>0.1.1</Version>
+    <Version>0.1.2</Version>
     <Authors>Dayna Blackwell</Authors>
     <Description>Zero-dependency GCF (Graph Compact Format) codec for .NET: a compact, lossless, LLM-oriented serialization of structured data with generic and graph profiles, delta encoding, and streaming.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/blackwell-systems/gcf-dotnet</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>gcf;serialization;llm;tokens;json;compact</PackageTags>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -24,5 +25,9 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
 
 </Project>
