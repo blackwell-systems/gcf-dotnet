@@ -82,7 +82,21 @@ namespace BlackwellSystems.Gcf
             {
                 case bool b: return b ? "true" : "false";
                 case int i: return i.ToString(CultureInfo.InvariantCulture);
+                // int64 renders as plain decimal digits across the whole closed interval
+                // [-2^63, 2^63-1], including long.MinValue; never gated on a magnitude test
+                // (SPEC 2.3.1). Math.Abs(long.MinValue) would itself overflow, so this must
+                // stay a straight ToString.
                 case long l: return l.ToString(CultureInfo.InvariantCulture);
+                // Native integer types wider than int64 (ulong, BigInteger) may hold values
+                // outside the canonical domain. Reject those with out_of_range rather than
+                // substituting an approximate number or a string (SPEC 2.3.2); an in-range
+                // value is rendered as its exact int64 digits.
+                case ulong ul:
+                    if (ul > long.MaxValue) throw new EncodeException(OutOfRangeMessage(ul.ToString(CultureInfo.InvariantCulture)));
+                    return ul.ToString(CultureInfo.InvariantCulture);
+                case System.Numerics.BigInteger bi:
+                    if (bi < long.MinValue || bi > long.MaxValue) throw new EncodeException(OutOfRangeMessage(bi.ToString(CultureInfo.InvariantCulture)));
+                    return bi.ToString(CultureInfo.InvariantCulture);
                 case double d: return FormatNumberValue(d);
                 case float f: return FormatNumberValue(f);
                 case string s:
@@ -101,7 +115,13 @@ namespace BlackwellSystems.Gcf
             double a = Math.Abs(f);
             string sign = f < 0 ? "-" : "";
             var (sig, sciExp) = Decompose(a);
-            if (a >= 1e-6 && a < 1e21)
+            // Plain decimal iff 1e-6 <= abs < 2^53; otherwise normalized exponent. Every
+            // double at or above 2^53 is integer-valued, so a plain rendering would emit a
+            // bare-integer token: indistinguishable from an int64 on the wire and beyond the
+            // binary64 safe-integer range (2^53-1), so a JavaScript decoder rejects it under
+            // its default policy. Exponent shape keeps bare tokens int64 and decimal/exponent
+            // tokens doubles (SPEC 2.3.1). 9007199254740992.0 is 2^53.
+            if (a >= 1e-6 && a < 9007199254740992.0)
             {
                 return sign + ToPlain(sig, sciExp);
             }
@@ -170,6 +190,16 @@ namespace BlackwellSystems.Gcf
             }
         }
 
+        /// <summary>
+        /// Message for an integer outside the canonical int64 domain (SPEC 2.3.2). The
+        /// substring "out_of_range" is the fleet-wide error code; the value and remediation
+        /// are carried so the error is actionable.
+        /// </summary>
+        public static string OutOfRangeMessage(string value) =>
+            "out_of_range: integer " + value +
+            " is outside the canonical int64 domain [-9223372036854775808, 9223372036854775807]; " +
+            "model larger values as strings (SPEC 2.3.2)";
+
         public static ScalarParsed ParseScalarValue(string s, bool tabularContext = false)
         {
             if (s.Length == 0) return new ScalarParsed(ScalarKind.String, "");
@@ -190,12 +220,25 @@ namespace BlackwellSystems.Gcf
             if (s == "false") return new ScalarParsed(ScalarKind.Bool, false);
             if (JsonNumberRe.IsMatch(s))
             {
+                // Token shape follows domain (SPEC 2.3.2): a bare-integer literal (no '.',
+                // 'e', or 'E') is an int64-domain integer and MUST parse to an exact long,
+                // never through a double (which would silently approximate magnitudes past
+                // 2^53). A decimal/exponent literal is a double. Note '-0' is a bare token
+                // and decodes to the integer value zero.
+                bool isBareInteger = s.IndexOf('.') < 0 && s.IndexOf('e') < 0 && s.IndexOf('E') < 0;
+                if (isBareInteger)
+                {
+                    if (long.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out long l))
+                    {
+                        return new ScalarParsed(ScalarKind.Int, l);
+                    }
+                    // The token matched the integer grammar but overflowed int64: it is an
+                    // out-of-domain integer, not a non-numeric string. Raise out_of_range
+                    // rather than silently approximating or coercing (SPEC 2.3.2).
+                    throw new DecodeException(OutOfRangeMessage(s));
+                }
                 if (double.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out double d))
                 {
-                    if (s.IndexOf('.') < 0 && s.IndexOf('e') < 0 && s.IndexOf('E') < 0 && Math.Abs(d) <= (double)(1L << 53))
-                    {
-                        return new ScalarParsed(ScalarKind.Int, (long)d);
-                    }
                     return new ScalarParsed(ScalarKind.Double, d);
                 }
             }

@@ -80,6 +80,33 @@ namespace BlackwellSystems.Gcf.Tests
                         AssertDeepEqual(input, Gcf.DecodeGeneric(wire), relative);
                         break;
                     }
+                case "roundtrip-wire":
+                    {
+                        // input and expected are both wire strings: decode the input wire,
+                        // re-encode, and assert the result equals expected byte-for-byte.
+                        // Catches decoders that float integers past 2^53 (SPEC 2.3.2), since
+                        // the floated value re-encodes to different digits.
+                        var input = r.GetProperty("input").GetString()!;
+                        var expectedWire = r.GetProperty("expected").GetString();
+                        var wire = Gcf.EncodeGeneric(Gcf.DecodeGeneric(input), ReadOptions(r));
+                        Assert.Equal(expectedWire, wire);
+                        break;
+                    }
+                case "encode-error":
+                    {
+                        // input is an encode-side JSON value; ingesting/encoding it MUST
+                        // throw (e.g. an integer outside the int64 domain). Ingest exactly as
+                        // the "encode" operation does.
+                        var expectedError = r.TryGetProperty("expectedError", out var ee) ? ee.GetString() : null;
+                        var ex = Assert.ThrowsAny<Exception>(() =>
+                        {
+                            var input = ConformanceInput.FromJson(r.GetProperty("input"));
+                            Gcf.EncodeGeneric(input, ReadOptions(r));
+                        });
+                        if (!string.IsNullOrEmpty(expectedError))
+                            Assert.Contains(expectedError, ex.Message);
+                        break;
+                    }
                 case "error":
                     {
                         if (r.TryGetProperty("input", out var inp))

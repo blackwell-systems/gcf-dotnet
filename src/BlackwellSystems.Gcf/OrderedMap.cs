@@ -59,4 +59,10 @@ namespace BlackwellSystems.Gcf
     {
         public DecodeException(string message) : base(message) { }
     }
+
+    /// <summary>Thrown when GCF encoding fails (e.g. a host integer outside the canonical int64 domain).</summary>
+    public sealed class EncodeException : System.Exception
+    {
+        public EncodeException(string message) : base(message) { }
+    }
 }
