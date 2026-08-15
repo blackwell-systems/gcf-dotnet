@@ -15,7 +15,7 @@
     <RollForward>Major</RollForward>
 
     <PackageId>BlackwellSystems.Gcf.Cli</PackageId>
-    <Version>0.1.2</Version>
+    <Version>0.2.0</Version>
     <Authors>Dayna Blackwell</Authors>
     <Description>Command-line interface for GCF (Graph Compact Format): encode, decode, and token-comparison stats. Installs the `gcf` command.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
