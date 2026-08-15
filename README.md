@@ -242,7 +242,7 @@ GCF wins 15/16 datasets on the expanded [token efficiency benchmark](https://git
 
 **Zero runtime dependencies. Permanently.** Every implementation depends only on its language's standard library. No transitive dependencies. No supply chain risk. This is a permanent commitment: GCF will never take on external runtime dependencies. MIT licensed. All implementations support both the generic profile (`EncodeGeneric`) and the graph profile (`Encode`).
 
-**Specification:** [SPEC v3.5.2 Stable](https://github.com/blackwell-systems/gcf/blob/main/SPEC.md) with 269 conformance fixtures, 43,000,000,000+ lossless round-trips verified across 5 formats and 6 languages. Cross-language conformance verified across all seven SDKs.
+**Specification:** [SPEC v3.5.3 Stable](https://github.com/blackwell-systems/gcf/blob/main/SPEC.md) with 279 conformance fixtures, 43,000,000,000+ lossless round-trips verified across 5 formats and 6 languages. Cross-language conformance verified across all seven SDKs.
 
 ## License
 
