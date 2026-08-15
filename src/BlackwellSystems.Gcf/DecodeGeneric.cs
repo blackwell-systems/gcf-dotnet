@@ -144,7 +144,7 @@ namespace BlackwellSystems.Gcf
 
                 if (!content.StartsWith("@", StringComparison.Ordinal) && !content.StartsWith("##", StringComparison.Ordinal))
                 {
-                    int bracketIdx = content.IndexOf('[');
+                    int bracketIdx = ArrayBracketStart(content);
                     if (bracketIdx > 0)
                     {
                         string rest = content.Substring(bracketIdx);
@@ -168,6 +168,34 @@ namespace BlackwellSystems.Gcf
                 throw new DecodeException("invalid_line: unexpected content in object body: " + content);
             }
             return i - start;
+        }
+
+        // Index of the '[' that opens a named-array marker (name[N]:), scanning past a
+        // quoted key so a '[' inside the key name is not mistaken for the array bracket
+        // (SPEC 4.2). Bare keys cannot contain '['. Returns -1 when not found.
+        private static int ArrayBracketStart(string content)
+        {
+            if (content.Length > 0 && content[0] == '"')
+            {
+                bool escaped = false;
+                for (int i = 1; i < content.Length; i++)
+                {
+                    if (escaped)
+                    {
+                        escaped = false;
+                    }
+                    else if (content[i] == '\\')
+                    {
+                        escaped = true;
+                    }
+                    else if (content[i] == '"')
+                    {
+                        return (i + 1 < content.Length && content[i + 1] == '[') ? i + 1 : -1;
+                    }
+                }
+                return -1;
+            }
+            return content.IndexOf('[');
         }
 
         private static int FindHeaderBracketStart(string s)
