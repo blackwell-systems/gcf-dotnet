@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.0 (2026-09-04)
+
+- First stable release. The public API is now committed under semantic versioning: the `Gcf` facade; the data types `Symbol`, `Edge`, `Payload`, `DeltaPayload`, `GenericSet`, `GenericDeltaPayload`, `GenericOptions`, `ReanchorPolicy`, `GenericDeltaSession`, `OrderedMap`, `Session`, `StreamOptions`, and `StreamEncoder`; and the `DecodeException` / `EncodeException` types.
+- No wire-format or behavioral changes from v0.2.1. Verified against the shared conformance suite (281 fixtures) and the cross-SDK differential fuzz.
+
 ## v0.2.1 (2026-08-15)
 
 - Decode: quoted-key/array-value round-trip (SPEC 4.2).
