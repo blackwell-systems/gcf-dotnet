@@ -287,7 +287,42 @@ namespace BlackwellSystems.Gcf
             {
                 int? braceEnd = Scalar.FindClosingBraceIdx(after);
                 if (braceEnd == null) throw new DecodeException("invalid field declaration");
-                var fields = Scalar.SplitFieldDeclValue(after.Substring(0, braceEnd.Value + 1));
+                string declStr = after.Substring(0, braceEnd.Value + 1);
+                string groupClause = after.Substring(braceEnd.Value + 1).Trim();
+
+                // Value-grouping (SPEC 7.4.8): non-keyed tabular array with a group= clause.
+                if (!keyed && groupClause.StartsWith("group=", StringComparison.Ordinal))
+                {
+                    var gEntries = ConstantGrouping.ParseFieldEntries(declStr);
+                    var (gRecords, gConsumed) = ConstantGrouping.DecodeGroupedArray(lines, headerLine, depth, gEntries, groupClause, count);
+                    return (gRecords, gConsumed);
+                }
+                if (groupClause.Length != 0)
+                    throw new DecodeException("malformed_header_field: unexpected content after field declaration: " + groupClause);
+
+                // Constant-column factoring (SPEC 7.4.7): a non-keyed tabular array whose field
+                // declaration carries name=value entries (or a stray @, which is valid only with
+                // a group= clause). The common case (no "=" or "@") takes the plain path.
+                if (!keyed && (declStr.IndexOf('=') >= 0 || declStr.IndexOf('@') >= 0))
+                {
+                    var cEntries = ConstantGrouping.ParseFieldEntries(declStr);
+                    bool hasConst = false;
+                    foreach (var e in cEntries)
+                    {
+                        if (e.IsKey)
+                            throw new DecodeException("invalid field name: @" + e.Name + " (an @ key column is valid only in a grouped section)");
+                        if (e.IsConst) hasConst = true;
+                    }
+                    if (hasConst)
+                    {
+                        var (cRecords, cConsumed) = ConstantGrouping.DecodeConstantArray(
+                            lines, headerLine, depth, cEntries, count, ParseTabularBody);
+                        return (cRecords, cConsumed);
+                    }
+                    // No constants after all (e.g. a quoted name containing "="): plain path.
+                }
+
+                var fields = Scalar.SplitFieldDeclValue(declStr);
                 if (keyed && fields.Count < 2) throw new DecodeException("keyed_map: header must declare at least two fields");
                 var (rows, consumed) = ParseTabularBody(lines, headerLine + 1, depth, fields, count);
                 if (count >= 0 && rows.Count != count) throw new DecodeException("count_mismatch: declared " + count + ", got " + rows.Count);

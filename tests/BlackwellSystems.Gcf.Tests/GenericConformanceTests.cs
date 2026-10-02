@@ -16,7 +16,7 @@ namespace BlackwellSystems.Gcf.Tests
         {
             "scalar", "numbers", "keys", "whitespace", "arrays", "containers",
             "roots", "flatten", "attachments", "inline-schema", "keyed-map",
-            "decode", "errors-v2"
+            "decode", "errors-v2", "constant-column", "value-grouping"
         };
 
         public static string ConformanceDir()
@@ -109,10 +109,13 @@ namespace BlackwellSystems.Gcf.Tests
                     }
                 case "error":
                     {
+                        var expectedError = r.TryGetProperty("expectedError", out var ee2) ? ee2.GetString() : null;
                         if (r.TryGetProperty("input", out var inp))
                         {
                             var wire = inp.GetString()!;
-                            Assert.ThrowsAny<Exception>(() => Gcf.DecodeGeneric(wire));
+                            var ex = Assert.ThrowsAny<Exception>(() => Gcf.DecodeGeneric(wire));
+                            if (!string.IsNullOrEmpty(expectedError))
+                                Assert.Contains(expectedError, ex.Message);
                         }
                         else
                         {

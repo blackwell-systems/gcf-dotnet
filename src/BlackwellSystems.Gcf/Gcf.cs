@@ -12,6 +12,18 @@ namespace BlackwellSystems.Gcf
         public static string EncodeGeneric(object? data, GenericOptions? options = null)
             => Generic.EncodeGeneric(data, options);
 
+        /// <summary>
+        /// Encode an array of uniform records as a value-grouped keyed set (SPEC 7.4.8).
+        /// Opt-in: this is never the canonical default. <paramref name="keyField"/> is the
+        /// unique identity column (emitted @-marked); <paramref name="groupField"/> is the
+        /// low-cardinality column the records are clustered by. Constant columns on other
+        /// fields are factored (SPEC 7.4.7). Throws <see cref="EncodeException"/> when the
+        /// array is not a keyed set the grammar can represent (missing key/group field,
+        /// non-unique key, key == group, or a record needing a nested attachment).
+        /// </summary>
+        public static string EncodeGenericGrouped(object? data, string keyField, string groupField)
+            => ConstantGrouping.EncodeGenericGrouped(data, keyField, groupField);
+
         /// <summary>Decode GCF generic (or graph) profile text into the native value model.</summary>
         public static object? DecodeGeneric(string input)
             => DecodeGenericImpl.DecodeGeneric(input);

@@ -186,7 +186,8 @@ foreach (var snapshot in stream) {              // each turn's current GenericSe
 | Member | Description |
 |--------|-------------|
 | `Gcf.Encode(Payload)` | Encode a graph payload to GCF text |
-| `Gcf.EncodeGeneric(object?)` | Encode any value to GCF tabular format |
+| `Gcf.EncodeGeneric(object?)` | Encode any value to GCF tabular format (constant-column factoring is canonical, §7.4.7) |
+| `Gcf.EncodeGenericGrouped(object?, keyField, groupField)` | Opt-in value-grouped keyed set: cluster uniform records by a group field (§7.4.8) |
 | `Gcf.Decode(string)` / `Gcf.Decode(byte[])` | Parse graph GCF text (or strict-UTF-8 bytes) to a `Payload` |
 | `Gcf.DecodeGeneric(string)` / `Gcf.DecodeGeneric(byte[])` | Decode generic (or graph) profile to the native value model |
 | `Gcf.EncodeWithSession(Payload, Session?)` | Encode with session deduplication |

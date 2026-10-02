@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.1.0 (2026-10-02)
+
+- **Constant-column factoring (spec v3.6.0, SPEC 7.4.7).** A plain scalar column that is byte-identical across every record of a top-level tabular array (root or named object value) is now declared once in the field header as `name=value` and omitted from the rows; a null constant is written `name=-`. This is the mandatory canonical encode path, so the default wire for such arrays is smaller than before. At least one per-record column always remains: when every field is constant, the last union field stays a bare column. Flattened path columns, attachments, and nested or array fields never factor; keyed maps and nested-attachment arrays are unaffected. Decode is universal.
+- **Value-grouping (spec v3.6.0, SPEC 7.4.8).** Adds `Gcf.EncodeGenericGrouped(data, keyField, groupField)`: an opt-in encoding (never the canonical default) that clusters an array of uniform records by a low-cardinality group field, writing the group value once per group in a `group=<value> [count]` subheader and marking the unique key column with `@`. Constant columns on other fields are factored. Decode of grouped sections is mandatory and composes with constant-column factoring. Throws `EncodeException` when the array is not a keyed set the grammar can represent (missing key/group field, non-unique key, `keyField == groupField`, or a record needing a nested attachment).
+- Verified against the shared conformance suite (323 fixtures, including `constant-column/` and `value-grouping/`) and a .NET fuzz harness covering constant-biased round-trips, grouped keyed-set round-trips, decoder mutation-robustness, and shape discrimination.
+
 ## v1.0.0 (2026-09-04)
 
 - First stable release. The public API is now committed under semantic versioning: the `Gcf` facade; the data types `Symbol`, `Edge`, `Payload`, `DeltaPayload`, `GenericSet`, `GenericDeltaPayload`, `GenericOptions`, `ReanchorPolicy`, `GenericDeltaSession`, `OrderedMap`, `Session`, `StreamOptions`, and `StreamEncoder`; and the `DecodeException` / `EncodeException` types.

@@ -78,7 +78,7 @@ namespace BlackwellSystems.Gcf
             if (arr.Count == 0) { outb.Append("## [0]\n"); return; }
             if (AllPrimitives(arr)) { outb.Append("## [").Append(arr.Count).Append("]: ").Append(JoinPrimitives(arr)).Append("\n"); return; }
             var fields = TabularFields(arr);
-            if (fields != null) { EncodeTabular("## ", arr, fields, outb, 0, opts); return; }
+            if (fields != null) { EncodeTabular("## ", arr, fields, outb, 0, opts, factorConst: true); return; }
             EncodeExpanded("## ", arr, outb, 0, opts);
         }
 
@@ -88,7 +88,7 @@ namespace BlackwellSystems.Gcf
             if (arr.Count == 0) { outb.Append(prefix).Append("## ").Append(name).Append(" [0]\n"); return; }
             if (AllPrimitives(arr)) { outb.Append(prefix).Append(name).Append("[").Append(arr.Count).Append("]: ").Append(JoinPrimitives(arr)).Append("\n"); return; }
             var fields = TabularFields(arr);
-            if (fields != null) { EncodeTabular(prefix + "## " + name + " ", arr, fields, outb, depth, opts); return; }
+            if (fields != null) { EncodeTabular(prefix + "## " + name + " ", arr, fields, outb, depth, opts, factorConst: true); return; }
             EncodeExpanded(prefix + "## " + name + " ", arr, outb, depth, opts);
         }
 
@@ -360,7 +360,7 @@ namespace BlackwellSystems.Gcf
             public Att(string name, object? value, bool inline, List<string>? inlineFields) { Name = name; Value = value; Inline = inline; InlineFields = inlineFields; }
         }
 
-        private static void EncodeTabular(string headerPrefix, IList arr, List<string> fields, StringBuilder outb, int depth, GenericOptions opts, bool keyed = false)
+        private static void EncodeTabular(string headerPrefix, IList arr, List<string> fields, StringBuilder outb, int depth, GenericOptions opts, bool keyed = false, bool factorConst = false)
         {
             string prefix = Indent(depth);
 
@@ -398,7 +398,43 @@ namespace BlackwellSystems.Gcf
                 var sas = SharedArraySchema(arr, f); if (sas != null) sharedArrSchemas[f] = sas;
             }
 
-            string headerFields = string.Join(",", columns.Select(c => c.Header));
+            // Constant-column factoring (SPEC 7.4.7): a plain scalar column identical across
+            // every record is declared once in the header as name=value and omitted from the
+            // rows. Mandatory canonical for tabular arrays, gated off for keyed maps and the
+            // nested-attachment path (factorConst). At least one per-record column remains.
+            var constCol = new bool[columns.Count];
+            var constHeaderVal = new string[columns.Count];
+            if (factorConst && !keyed && arr.Count >= 2)
+            {
+                for (int j = 0; j < columns.Count; j++)
+                {
+                    var col = columns[j];
+                    if (col.Type != "original") continue; // only plain scalar columns qualify, never flattened/attachment
+                    string first = "";
+                    bool firstSet = false;
+                    bool isConst = true;
+                    foreach (var item in arr)
+                    {
+                        if (!IsMap(item)) { isConst = false; break; }
+                        var map = AsMap(item);
+                        if (!map.ContainsKey(col.Field)) { isConst = false; break; }
+                        var v = map[col.Field];
+                        if (IsMap(v) || IsList(v)) { isConst = false; break; }
+                        string cv = ConstantGrouping.FormatConstValue(v);
+                        if (!firstSet) { first = cv; firstSet = true; }
+                        else if (cv != first) { isConst = false; break; }
+                    }
+                    if (isConst) { constCol[j] = true; constHeaderVal[j] = first; }
+                }
+                // At least one per-record column MUST remain. If every column is constant
+                // (an array of identical objects), leave the last union field unfactored.
+                int bare = 0;
+                for (int j = 0; j < columns.Count; j++) if (!constCol[j]) bare++;
+                if (bare == 0) constCol[columns.Count - 1] = false;
+            }
+
+            string headerFields = string.Join(",", columns.Select((c, idx) =>
+                constCol[idx] ? c.Header + "=" + constHeaderVal[idx] : c.Header));
             string br = keyed ? ":]" : "]";
             outb.Append(headerPrefix).Append("[").Append(arr.Count).Append(br).Append("{").Append(headerFields).Append("}\n");
 
@@ -451,7 +487,10 @@ namespace BlackwellSystems.Gcf
                     attachments.Add(new Att(f, map[f], false, null));
                 }
 
-                string row = string.Join("|", cells);
+                // Omit constant columns from the per-row cells (SPEC 7.4.7.3).
+                var rowCells = new List<string>(cells.Count);
+                for (int j = 0; j < cells.Count; j++) if (!constCol[j]) rowCells.Add(cells[j]);
+                string row = string.Join("|", rowCells);
                 if (rowHasAttachment) outb.Append(prefix).Append("@").Append(i).Append(" ").Append(row).Append("\n");
                 else outb.Append(prefix).Append(row).Append("\n");
 
